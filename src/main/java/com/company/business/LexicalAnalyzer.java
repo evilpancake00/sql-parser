@@ -1,6 +1,7 @@
 package com.company.business;
 
 import com.company.LexemeType;
+import com.company.exception.ParserException;
 import com.company.model.Lexeme;
 
 import java.util.regex.Pattern;
@@ -13,26 +14,32 @@ public class LexicalAnalyzer {
         this.syntacticalAnalyzer = syntacticalAnalyzer;
     }
 
-    public void parse(String text) {
+    public void parse(String text) throws ParserException {
         StringBuilder lexeme = new StringBuilder();
-        for (int i = 0; i < text.length(); i++) {
-            char symbol = text.charAt(i);
+        int position = 0;
+        while (position < text.length()) {
+            char symbol = text.charAt(position);
             if (isTerminator(symbol)) {
                 if (lexeme.length() > 0) {
-                    parseLexeme(lexeme.toString());
+                    parseLexeme(position, lexeme.toString());
                     if (!isSeparator(symbol)) {
-                        parseLexeme(String.valueOf(symbol));
+                        parseLexeme(position + 1, String.valueOf(symbol));
                     }
                     lexeme = new StringBuilder();
                 }
             } else {
                 lexeme.append(symbol);
             }
+            position++;
         }
+        if (lexeme.length() > 0) {
+            parseLexeme(position, lexeme.toString());
+        }
+        syntacticalAnalyzer.parse(new Lexeme(position, LexemeType.TERMINAL, null));
     }
 
-    private void parseLexeme(String lexeme) {
-        syntacticalAnalyzer.parse(new Lexeme(getLexemeType(lexeme), lexeme));
+    private void parseLexeme(Integer position, String lexeme) throws ParserException {
+        syntacticalAnalyzer.parse(new Lexeme(position, getLexemeType(lexeme), lexeme));
     }
 
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^[A-Za-z@$#_]+[A-Za-z0-9@$#_]*$");

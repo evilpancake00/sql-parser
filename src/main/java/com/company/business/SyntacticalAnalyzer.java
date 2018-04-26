@@ -1,11 +1,11 @@
 package com.company.business;
 
+import com.company.exception.ParserException;
 import com.company.model.Lexeme;
 import com.company.model.State;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import static com.company.LexemeType.*;
 import static java.util.Collections.singletonList;
@@ -20,6 +20,7 @@ public class SyntacticalAnalyzer {
         State from = new State();
         State identifier = new State();
         State alias = new State();
+        State table = new State();
 
         root.on(SELECT, select);
 
@@ -49,19 +50,23 @@ public class SyntacticalAnalyzer {
         alias
             .on(FROM, from);
 
-        from
-            .on(IDENTIFIER)
+        from.on(IDENTIFIER, table);
+
+        table
             .end();
+        table
+            .on(COMMA)
+            .on(IDENTIFIER, table);
 
         currentStates = singletonList(root);
     }
 
-    public void parse(Lexeme lexeme) {
+    public void parse(Lexeme lexeme) throws ParserException {
         Collection<State> nextStates = new ArrayList<>();
         for (State state : currentStates) {
             Collection<State> states = state.parse(lexeme);
-            if (states.isEmpty() && !state.isTerminal()) {
-                throw new RuntimeException(String.format("State: %s, expected: %s", state, state.getExpected()));
+            if (states.isEmpty()) {
+                throw new ParserException(lexeme.getPosition(), state.getExpected());
             }
             nextStates.addAll(states);
         }

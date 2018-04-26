@@ -4,10 +4,20 @@ import com.company.LexemeType;
 
 import java.util.*;
 
+import static java.util.Collections.singletonList;
+
 public class State {
 
     private final Map<LexemeType, Collection<State>> transitions = new HashMap<>();
-    private boolean terminal;
+    private final boolean terminal;
+
+    public State() {
+        terminal = false;
+    }
+
+    public State(boolean terminal) {
+        this.terminal = terminal;
+    }
 
     public Collection<State> parse(Lexeme lexeme) {
         return transitions.getOrDefault(lexeme.getType(), new ArrayList<>());
@@ -30,7 +40,7 @@ public class State {
     }
 
     public void end() {
-        terminal = true;
+        transitions.put(LexemeType.TERMINAL, singletonList(new State(true)));
     }
 
     public boolean isTerminal() {

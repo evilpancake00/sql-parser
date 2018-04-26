@@ -1,10 +1,9 @@
 import com.company.business.LexicalAnalyzer;
 import com.company.business.SyntacticalAnalyzer;
+import com.company.exception.ParserException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import static java.lang.String.format;
 
 public class SyntacticalAnalyzerTest {
 
@@ -36,8 +35,27 @@ public class SyntacticalAnalyzerTest {
         test("SELECT col1 AS alias1, col2 AS alias2 FROM SOME_TABLE123");
     }
 
+    @Test
+    public void test5() {
+        test("SELECT col1, col2 AS alias2 FROM SOME_TABLE123");
+    }
+
+    @Test
+    public void test6() {
+        test("SELECT col1 AS alias1, col2 FROM SOME_TABLE123");
+    }
+
+    @Test
+    public void test7() {
+        test("SELECT col1, col2 FROM SOME_TABLE123, SOME_TABLE456");
+    }
+
     private void test(String query) {
-        lexicalAnalyzer.parse(query);
+        try {
+            lexicalAnalyzer.parse(query);
+        } catch (ParserException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private void testError(String query) {
@@ -46,6 +64,6 @@ public class SyntacticalAnalyzerTest {
         } catch (Throwable throwable) {
             return;
         }
-        Assert.fail(format("Incorrect query executed: %s", query));
+        Assert.fail("Incorrect query executed: " + query);
     }
 }
