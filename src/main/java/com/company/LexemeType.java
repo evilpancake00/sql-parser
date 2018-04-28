@@ -10,5 +10,18 @@ public enum LexemeType {
     AS,
     COMMA,
     SELECT,
+    JOIN,
+    INNER,
+    LEFT,
+    RIGHT,
+    ON,
+    EQ,
+    NE,
+    GT,
+    LT,
+    GE,
+    LE,
+    AND,
+    OR,
     TERMINAL
 }
