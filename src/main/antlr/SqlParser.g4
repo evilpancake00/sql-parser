@@ -60,7 +60,6 @@ table_source_item_joined
     : table_source_item join_part*
     ;
 
-
 table_source_item
     : full_table_name as_table_alias?
     ;
