@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.opentest4j.AssertionFailedError
-import ru.study.Parser
+import ru.study.Parser.Companion.parse
 
 class ErrorsTest {
     private var text: String = ""
@@ -44,7 +44,7 @@ class ErrorsTest {
     @AfterEach
     fun after() {
         try {
-            Parser().parse(text)
+            parse(text)
         } catch (throwable: Throwable) {
             return
         }

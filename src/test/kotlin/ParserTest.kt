@@ -2,7 +2,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import ru.study.Parser
+import ru.study.Parser.Companion.parse
 import ru.study.model.*
 
 class ParserTest {
@@ -31,6 +31,16 @@ class ParserTest {
     @Test
     fun test_select() {
         text = "SELECT COL1, COL2, COL3 FROM TBL1"
+        projections = listOf(
+            ColumnProjection("COL1"),
+            ColumnProjection("COL2"),
+            ColumnProjection("COL3")
+        )
+    }
+
+    @Test
+    fun test_case_sensitive() {
+        text = "select COL1, cOl2, CoL3 FROM Tbl1"
         projections = listOf(
             ColumnProjection("COL1"),
             ColumnProjection("COL2"),
@@ -115,20 +125,20 @@ class ParserTest {
     @Test
     fun test_and() {
         text = "SELECT * FROM TBL1 WHERE COL1 = \"111\" AND COL2 = \"222\""
-        restriction = And(listOf(Eq("COL1", "\"111\""), Eq("COL2", "\"222\"")))
+        restriction = Conjunction(listOf(Eq("COL1", "\"111\""), Eq("COL2", "\"222\"")))
     }
 
     @Test
     fun test_or() {
         text = "SELECT * FROM TBL1 WHERE COL1 = \"111\" OR COL2 = \"222\""
-        restriction = Or(listOf(Eq("COL1", "\"111\""), Eq("COL2", "\"222\"")))
+        restriction = Disjunction(listOf(Eq("COL1", "\"111\""), Eq("COL2", "\"222\"")))
     }
 
     @Test
     fun test_complex() {
         text = "SELECT * FROM TBL1 WHERE COL1 = \"111\" AND COL2 = \"222\" OR COL3 = \"333\""
-        restriction = Or(listOf(
-            And(listOf(
+        restriction = Disjunction(listOf(
+            Conjunction(listOf(
                 Eq("COL1", "\"111\""),
                 Eq("COL2", "\"222\"")
             )),
@@ -139,8 +149,8 @@ class ParserTest {
     @Test
     fun test_brackets() {
         text = "SELECT * FROM TBL1 WHERE (COL1 = \"111\" OR COL2 = \"222\") AND COL3 = \"333\""
-        restriction = And(listOf(
-            Or(listOf(
+        restriction = Conjunction(listOf(
+            Disjunction(listOf(
                 Eq("COL1", "\"111\""),
                 Eq("COL2", "\"222\"")
             )),
@@ -235,7 +245,7 @@ class ParserTest {
     }
 
     @Test
-    fun test_subquery() {
+    fun test_subQuery() {
         text =
             "SELECT COL1, (" +
                 "SELECT COL4 FROM TBL3 JOIN TBL4 ON COL5 = COL6 " +
@@ -274,7 +284,7 @@ class ParserTest {
                 limit,
                 offset
             ),
-            Parser().parse(text)
+            parse(text)
         )
     }
 }
